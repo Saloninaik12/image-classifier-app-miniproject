@@ -45,5 +45,6 @@ if uploaded_file is not None:
    if st.button("🔁 Try another image"):
     st.session_state.clear()
     st.rerun()
+       
 else:
     st.info("Please upload an image to begin.")
