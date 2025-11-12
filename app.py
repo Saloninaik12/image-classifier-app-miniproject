@@ -42,7 +42,8 @@ if uploaded_file is not None:
     for (_, label, prob) in predictions:
         st.write(f"**{label}** — {prob*100:.2f}%")
 
-    if st.button("Try Another Image"):
-        st.rerun()
+   if st.button("🔁 Try another image"):
+    st.session_state.clear()
+    st.rerun()
 else:
     st.info("Please upload an image to begin.")
