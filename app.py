@@ -43,6 +43,6 @@ if uploaded_file is not None:
         st.write(f"**{label}** — {prob*100:.2f}%")
 
     if st.button("Try Another Image"):
-        st.experimental_rerun()
+        st.rerun()
 else:
     st.info("Please upload an image to begin.")
