@@ -1,50 +1,45 @@
-
 import streamlit as st
-from PIL import Image
-import tensorflow as tf
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
+from tensorflow.keras.preprocessing import image
 import numpy as np
+from PIL import Image
 
-st.set_page_config(page_title="Image Classifier", page_icon="🔍", layout="centered")
-
-# ---- Title & Instructions ----
-st.title("🖼️ What Am I Looking At?")
-st.write("Upload an image and I'll tell you what’s in it!")
-
-# ---- Load Pretrained Model ----
+# Load model once
 @st.cache_resource
 def load_model():
-    model = tf.keras.applications.ResNet50(weights="imagenet")
+    model = ResNet50(weights='imagenet')
     return model
 
 model = load_model()
 
-# ---- Prediction Function ----
-def predict_image(image):
-    img = image.resize((224, 224))
-    img_array = np.array(img)
-    img_array = np.expand_dims(img_array, axis=0)
-    img_array = tf.keras.applications.resnet50.preprocess_input(img_array)
-    preds = model.predict(img_array)
-    decoded_preds = tf.keras.applications.resnet50.decode_predictions(preds, top=5)[0]
-    return decoded_preds
+# App title and instructions
+st.title("🖼️ What Am I Looking At?")
+st.write("Upload an image and I’ll tell you what’s in it!")
 
-# ---- File Upload ----
-uploaded_file = st.file_uploader("📁 Choose an image file", type=["jpg", "jpeg", "png"])
+# File uploader
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image Preview", use_column_width=True)
-    st.write("🔍 Classifying... please wait...")
-    
-    predictions = predict_image(image)
-    
-    st.subheader("Top 5 Predictions:")
-    for (_, label, prob) in predictions:
-        st.write(f"**{label}** — {prob*100:.2f}%")
+    # Display image
+    img = Image.open(uploaded_file)
+    st.image(img, caption='Uploaded Image', use_column_width=True)
 
-   if st.button("🔁 Try another image"):
-    st.session_state.clear()
-    st.rerun()
-       
-else:
-    st.info("Please upload an image to begin.")
+    # Predict button
+    if st.button("🔍 Classify Image"):
+        # Preprocess the image
+        img = img.resize((224, 224))
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+        x = preprocess_input(x)
+
+        preds = model.predict(x)
+        predictions = decode_predictions(preds, top=5)[0]
+
+        st.subheader("✅ Top 5 Predictions:")
+        for i, (imagenet_id, label, score) in enumerate(predictions):
+            st.write(f"{i+1}. **{label}** — {round(score * 100, 2)}%")
+
+    # Try another image button (Reset)
+    if st.button("🔁 Try another image"):
+        st.session_state.clear()
+        st.rerun()
