@@ -50,6 +50,7 @@ if st.session_state.show_results:
         st.write(f"{i+1}. **{label}** — {round(score * 100, 2)}%")
 
     if st.button("🔁 Try another image"):
-        # Proper reset
         st.session_state.clear()
+        st.success("✅ Ready for a new image! Scroll up or upload below.")
         st.rerun()
+
